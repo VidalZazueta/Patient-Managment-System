@@ -8,6 +8,7 @@ import com.example.patientservice.mapper.PatientMapper;
 import com.example.patientservice.model.Patient;
 import com.example.patientservice.repository.PatientRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,15 +23,14 @@ public class PatientService {
         this.patientRepository = patientRepository;
     }
 
+    // Method to get all patients
     public List<PatientResponseDTO> getPatients() {
         List<Patient> patients = patientRepository.findAll();
-
-        //Create a new response of patientDTOs
-        // Loop through each patient in the list
 
         return patients.stream().map(PatientMapper::toDTO).toList();
     }
 
+    // Method to create a patient
     public PatientResponseDTO createPatient(PatientRequestDTO patientRequestDTO) {
 
         if(patientRepository.existsByEmail(patientRequestDTO.getEmail())) {
@@ -42,6 +42,7 @@ public class PatientService {
         return PatientMapper.toDTO(newPatient);
     }
 
+    // Method to update a patient
     public PatientResponseDTO updatePatient(UUID id, PatientRequestDTO patientRequestDTO) {
         Patient patient = patientRepository.findById(id).orElseThrow(
                 () -> new PatientNotFoundException("Patient not found with ID: " + id));
@@ -57,6 +58,12 @@ public class PatientService {
 
         Patient updatedPatient = patientRepository.save(patient);
         return PatientMapper.toDTO(updatedPatient);
+    }
+
+    // Method to delete a patient
+    @DeleteMapping
+    public void deletePatient(UUID id) {
+        patientRepository.deleteById(id);
     }
 
 }
